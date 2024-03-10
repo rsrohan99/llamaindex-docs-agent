@@ -12,10 +12,11 @@ export default function ChatMessage(chatMessage: Message) {
   return (
     <div className="flex items-start gap-4 pr-5 pt-5">
       <ChatAvatar role={chatMessage.role} />
-      <div className="group flex flex-1 justify-between gap-2">
+      <div className="group flex flex-1 justify-between gap-2 text-sm">
         <div
           className={cn("flex-1", {
-            "animate-pulse": chatMessage.role === "function",
+            "text-[13px] text-gray-500 font-bold":
+              chatMessage.role === "function",
           })}
         >
           <Markdown content={chatMessage.content} />

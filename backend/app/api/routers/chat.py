@@ -6,9 +6,9 @@ from threading import Thread
 from app.utils.json import json_to_model
 from app.utils.index import EventObject, get_agent
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from llama_index.llms.base import MessageRole, ChatMessage
-from llama_index.agent import OpenAIAgent
-from llama_index.chat_engine.types import StreamingAgentChatResponse
+from llama_index.core.base.llms.types import MessageRole, ChatMessage
+from llama_index.agent.openai import OpenAIAgent
+from llama_index.core.chat_engine.types import StreamingAgentChatResponse
 from pydantic import BaseModel
 import logging
 import json
@@ -27,6 +27,7 @@ class _ChatData(BaseModel):
 
 def convert_sse(obj: str | dict):
     """Convert the given object (or string) to a Server-Sent Event (SSE) event"""
+    # print(obj)
     return "data: {}\n\n".format(json.dumps(obj))
 
 
@@ -65,6 +66,8 @@ async def chat(
     thread.start()
     logger.info("Querying chat engine")
     # response = agent.stream_chat(lastMessage.content, messages)
+    # response = agent.chat(lastMessage.content, messages)
+    # logger.info(response)
 
     # stream response
     # NOTE: changed to sync due to issues with blocking the event loop

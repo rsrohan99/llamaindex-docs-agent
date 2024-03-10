@@ -13,7 +13,7 @@ export default function ChatAvatar({ role }: { role: string }) {
   if (role === "function") {
     return (
       <div className="flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-md border bg-background shadow">
-        <Shell className="h-4 w-4 animate-spin text-sky-400" />
+        <Shell className="h-4 w-4 text-sky-400" />
       </div>
     );
   }

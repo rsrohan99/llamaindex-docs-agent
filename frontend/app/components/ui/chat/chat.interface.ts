@@ -13,3 +13,11 @@ export interface ChatHandler {
   reload?: () => void;
   stop?: () => void;
 }
+
+export interface Node {
+  id: string;
+  title: string;
+  url: string;
+  section: string;
+  summary: string;
+}
