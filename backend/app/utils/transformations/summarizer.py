@@ -3,6 +3,7 @@ import asyncio
 from llama_index.core.schema import TransformComponent
 from llama_index.core.bridge.pydantic import Field
 from llama_index.core.response_synthesizers import TreeSummarize
+from llama_index.llms.openai import OpenAI
 
 class DocsSummarizer(TransformComponent):
   """Summarize current documentation page."""
@@ -13,6 +14,7 @@ class DocsSummarizer(TransformComponent):
   )
 
   async def generate_summary(self, node, summarizer, prompt):
+      print(f"getting summary for {node.id_}")
       summary = await summarizer.aget_response(prompt, [node.text])
       node.metadata['summary'] = summary
   
@@ -30,9 +32,15 @@ class DocsSummarizer(TransformComponent):
     print('calling')
 
   async def acall(self, nodes, **kwargs):
-    summarizer = TreeSummarize(verbose=True)
+    summarizer = TreeSummarize(
+      verbose=True,
+      llm=OpenAI(
+        model=self.llm,
+        temperature=0,
+      )
+    )
 
-    SUMMARY_PROMPT = "Give me a brief summary under 50 words of the given LlamaIndex documentation page. This 50-word summary must cover everything discussed in the given documentation page but briefly so that someone reading this brief summary will get a complete picture of what they'll learn if they read the entire page."
+    SUMMARY_PROMPT = "Give me a brief summary under 50 words of the given LlamaIndex documentation page. There are many pages, this is just one of them. This 50-word summary must cover everything discussed in this particular documentation page but briefly so that someone reading this brief summary will get a complete picture of what they'll learn if they read the entire page."
 
     # loop = asyncio.get_event_loop()
     # loop.run_until_complete(

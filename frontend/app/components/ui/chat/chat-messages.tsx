@@ -36,14 +36,16 @@ export default function ChatMessages(
   }, [messageLength, lastMessage]);
 
   return (
-    <div className="w-full rounded-xl bg-white p-4 shadow-xl pb-0">
+    <div className="w-full rounded-xl bg-white p-4 shadow-xl pb-0 h-[70vh]">
       <div
-        className="flex h-[50vh] flex-col gap-5 divide-y overflow-y-auto pb-4"
+        className="flex h-[60vh] flex-col gap-5 divide-y overflow-y-auto pb-4"
         ref={scrollableChatContainerRef}
       >
-        {props.messages.map((m) => (
-          <ChatMessage key={m.id} {...m} />
-        ))}
+        {props.messages.map((m) => {
+          if (m.content) {
+            return <ChatMessage key={m.id} {...m} />;
+          }
+        })}
         {isPending && (
           <div className="flex justify-center items-center pt-10">
             <Loader2 className="h-4 w-4 animate-spin" />

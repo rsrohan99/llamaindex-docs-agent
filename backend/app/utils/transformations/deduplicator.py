@@ -1,3 +1,5 @@
+from typing import Callable
+
 from llama_index.core.schema import TransformComponent
 from llama_index.core.storage.docstore.types import BaseDocumentStore
 from llama_index.core.bridge.pydantic import Field
@@ -7,6 +9,11 @@ class Deduplicator(TransformComponent):
 
   docstore: BaseDocumentStore = Field(
     description='Document store to check for duplicates'
+  )
+
+  cleanup_fn: Callable = Field(
+    default=lambda _:...,
+    description="after deleting missing nodes, call this function."
   )
 
   def __call__(self, nodes, **kwargs):
@@ -32,6 +39,7 @@ class Deduplicator(TransformComponent):
         self.docstore.delete_ref_doc(ref_doc_id, raise_error=False)
         self.docstore.set_document_hash(ref_doc_id, node.hash)
         deduped_nodes_to_run[ref_doc_id] = node
+        self.cleanup_fn(ref_doc_id)
       else:
         print(f"skipping document {ref_doc_id}")
         continue   # document exists and is unchanged, so skip it
@@ -40,7 +48,11 @@ class Deduplicator(TransformComponent):
     for ref_doc_id in doc_ids_to_delete:
       print(f"deleting missing document {ref_doc_id}")
       self.docstore.delete_document(ref_doc_id)
+      self.cleanup_fn(ref_doc_id)
     
     nodes_to_return = list(deduped_nodes_to_run.values())
+    if len(nodes_to_return) > 0:
+      self.cleanup_fn(ref_doc_id)
+
 
     return nodes_to_return

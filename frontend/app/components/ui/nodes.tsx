@@ -1,5 +1,5 @@
 import { Node } from "./chat/chat.interface";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface NodeBoxProps {
   node: Node;
@@ -23,21 +23,26 @@ const NodeBox: React.FC<NodeBoxProps> = ({ node, onClick, isSelected }) => {
 
 interface NodeListProps {
   nodes: Node[];
+  selectedNodeId: string;
   onNodeClick: (nodeId: string) => void;
 }
 
-const NodeList: React.FC<NodeListProps> = ({ nodes, onNodeClick }) => {
+const NodeList: React.FC<NodeListProps> = ({
+  nodes,
+  onNodeClick,
+  selectedNodeId,
+}) => {
   if (nodes.length === 0) return;
   // console.log(nodes);
-  const [selectedNodeId, setSelectedNodeId] = useState(nodes[0].id || "");
+  // const [selectedNodeId, setSelectedNodeId] = useState(nodes[0].id || "");
 
   const handleNodeClick = (nodeId: string) => {
-    setSelectedNodeId(nodeId);
+    // setSelectedNodeId(nodeId);
     onNodeClick(nodeId);
   };
 
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className="flex flex-wrap gap-2">
       {nodes.map((node) => (
         <NodeBox
           key={node.id}
@@ -56,12 +61,12 @@ interface NodeDetailsProps {
 
 const NodeDetails: React.FC<NodeDetailsProps> = ({ url }) => {
   if (!url) return;
-  console.log(url);
+  // console.log(url);
   return (
-    <div className="mt-4">
+    <div className="mt-2">
       <iframe
         src={url}
-        className="w-[50vw] rounded-lg h-screen border border-gray-300"
+        className="w-[50vw] rounded-lg h-[80vh] border border-gray-300"
       />
     </div>
   );
@@ -75,21 +80,37 @@ export const NodePreview: React.FC<NodePreviewProps> = ({ nodes }) => {
   // console.log(nodes);
   if (nodes.length === 0) return;
   const nodeToURL = (node: Node) => {
-    return `https://ts.llamaindex.ai/${node.url}#${node.section}`;
+    const node_url = node.url.endsWith("/index")
+      ? node.url.slice(0, -6)
+      : node.url;
+    return `https://ts.llamaindex.ai/${node_url}#${node.section}`;
   };
-  const firstNodeUrl = nodeToURL(nodes[0]);
-  const [selectedNodeUrl, setSelectedNodeUrl] = useState(firstNodeUrl || "");
+  const [selectedNodeUrl, setSelectedNodeUrl] = useState("");
+  const [selectedNodeId, setSelectedNodeId] = useState("");
+
+  useEffect(() => {
+    // console.log("nodes updated");
+    const firstNodeUrl = nodeToURL(nodes[0]);
+    setSelectedNodeUrl(firstNodeUrl);
+    setSelectedNodeId(nodes[0].id);
+    // console.log(nodes);
+  }, [nodes]);
 
   const handleNodeClick = (nodeId: string) => {
     const selectedNode = nodes.find((node) => node.id === nodeId);
     if (selectedNode) {
       setSelectedNodeUrl(nodeToURL(selectedNode));
+      setSelectedNodeId(nodeId);
     }
   };
 
   return (
-    <div className="container mx-auto p-4 pt-0">
-      <NodeList nodes={nodes} onNodeClick={handleNodeClick} />
+    <div className="p-4 pt-0 w-max">
+      <NodeList
+        nodes={nodes}
+        onNodeClick={handleNodeClick}
+        selectedNodeId={selectedNodeId}
+      />
       <NodeDetails url={selectedNodeUrl} />
     </div>
   );
