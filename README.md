@@ -2,17 +2,37 @@
 
 This is a [LlamaIndex](https://www.llamaindex.ai/) project bootstrapped with [`create-llama`](https://github.com/run-llama/LlamaIndexTS/tree/main/packages/create-llama).
 
-We use our multi-document agent architecture:
-- Individual agent per document capable of semantic search/summarization
-- Orchestrator agent across documents that can pick relevant subsets
+This multi-document agent is built over the LlamaIndex.TS documentation.
 
-This also streams *all* intermediate results from the agent via a custom Callback handler.
+We use our multi-document agent architecture:
+
+- Individual query engine per document
+- Top level Orchestrator agent across documents that can pick relevant subsets
+
+This also streams _all_ intermediate results from the agent via a custom Callback handler.
+
+We use this Custom Callback handler to also send intermediate nodes that are retrieved during retrieval of document level query engines, to the frontend.
+
+It allows us to show the relevant section of the documentation in the preview window.
 
 ## Main Files to Look At
 
 This extends beyond the simple `create-llama` example. To see changes, look at the following files:
+
 - `backend/app/utils/index.py` - contains core logic for constructing + getting multi-doc agent
 - `backend/app/api/routers/chat.py` - contains implementation of chat endpoint + threading to stream intermediate responses.
+
+We also created some custom `Transformations` that we use with out robust `IngestionPipeline`
+
+As we update the documentations in the `data` folder, this `IngestionPipeline` takes care of handling duplicates, applying our custom nodes transformation logic etc.
+
+The custom transformations we've used:
+
+- `Deduplicator` - handles duplicates.
+- `HyperlinksRemover` - cleans the markdown files.
+- `Summarizer` - creates summary of the node and adds that as a metadata.
+- `URLExtractor` - generates the url of a particular node section.
+- `Upserter` - updates the docstore with new and updated nodes, deletes old ones.
 
 ## Getting Started
 
