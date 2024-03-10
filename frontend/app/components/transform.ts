@@ -43,8 +43,8 @@ const parseMessageFromToken = (
       const nodes = payload.nodes as Node[];
       if (nodes.length !== 0) {
         setNodes(nodes);
-        console.log(payload.nodes);
-        console.log("here");
+        // console.log(payload.nodes);
+        // console.log("here");
       }
       return {
         id: nanoid(),
